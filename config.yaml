@@ -1,7 +1,10 @@
 # 监听端口（注意需要引号）
 listen_addr: ":443"
 # 可选：下面这个的作用是用来将传入的 HTTP 重定向为 HTTPS（固定的 443 端口和上面配置无关），如果没写将不监听及处理 HTTP 连接
-#listen_addr_http: ":80"
+listen_addr_http: ":80"
+
+# 可选：启用内置的 WARP 前置代理，开启后会忽略下面的 Socks5 相关配置
+enable_warp: true
 
 # 可选：启用 Socks5 前置代理
 #enable_socks5: true
@@ -16,5 +19,4 @@ listen_addr: ":443"
 
 # 二选一：仅允许指定域名（和上面的 allow_all_hosts 二选一）
 rules:
-  - example.com
-  - b.example2.com
+  - dv.acme-v02.api.pki.goog

@@ -22,3 +22,5 @@ Releases
 # vendor/
 
 SNIProxy
+.vscode/settings.json
+amz.state.json

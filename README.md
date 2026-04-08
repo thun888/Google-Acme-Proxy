@@ -1,3 +1,10 @@
+# 改动说明
+
+使用[skye-z/amz](https://github.com/skye-z/amz/blob/main/README_zh.md)添加了WARP代理支持，可部署在Docker下，调整Host后实现境内签发Google Trust Services的证书
+
+
+
+
 # XIU2/SNIProxy
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/XIU2/SNIProxy.svg?style=flat-square&label=Go&color=00ADD8&logo=go)](https://github.com/XIU2/SNIProxy/)

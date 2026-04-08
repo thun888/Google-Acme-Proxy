@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/skye-z/amz"
 	"gopkg.in/yaml.v2"
 )
 
@@ -33,6 +34,7 @@ type configModel struct {
 	ListenAddr     string   `yaml:"listen_addr,omitempty"`
 	ListenAddrHTTP string   `yaml:"listen_addr_http,omitempty"`
 	EnableSocks    bool     `yaml:"enable_socks5,omitempty"`
+	EnableWarp     bool     `yaml:"enable_warp,omitempty"`
 	SocksAddr      string   `yaml:"socks_addr,omitempty"`
 	SocksUsername  string   `yaml:"socks_username,omitempty"`
 	SocksPassword  string   `yaml:"socks_password,omitempty"`
@@ -91,7 +93,33 @@ func main() {
 	}
 	serviceLogger(fmt.Sprintf("调试模式: %v", EnableDebug), 32, false)
 	serviceLogger(fmt.Sprintf("前置代理: %v", cfg.EnableSocks), 32, false)
+	serviceLogger(fmt.Sprintf("WARP代理: %v", cfg.EnableWarp), 32, false)
 	serviceLogger(fmt.Sprintf("任意域名: %v", cfg.AllowAllHosts), 32, false)
+
+	client, err := amz.NewClient(amz.Options{
+		Storage: amz.StorageOptions{
+			Path: "./amz.state.json",
+		},
+		Listen: amz.ListenOptions{
+			Address: "127.0.0.1:9811",
+		},
+		HTTP: amz.HTTPOptions{
+			Enabled: false,
+		},
+		SOCKS5: amz.SOCKS5Options{
+			Enabled: true,
+		},
+	})
+	if err != nil {
+		serviceLogger(fmt.Sprintf("前置代理初始化失败: %v", err), 32, false)
+	}
+	defer client.Close()
+
+	if err := client.Start(context.Background()); err != nil {
+		serviceLogger(fmt.Sprintf("前置代理初始化失败: %v", err), 32, false)
+	}
+
+	serviceLogger(fmt.Sprintf("WARP 前置代理将会监听 %s", client.ListenAddress()), 32, false)
 
 	startSniProxy() // 启动 SNI Proxy
 }
@@ -331,7 +359,7 @@ func forward(conn net.Conn, data []byte, dst string, raddr string) {
 		return
 	}
 
-	backend, err := GetDialer(cfg.EnableSocks).Dial("tcp", dst)
+	backend, err := GetDialer(cfg.EnableSocks, cfg.EnableWarp).Dial("tcp", dst)
 	if err != nil {
 		serviceLogger(fmt.Sprintf("无法连接到后端(HTTPS), %v", err), 31, false)
 		return
