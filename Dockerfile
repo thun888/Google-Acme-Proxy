@@ -3,10 +3,10 @@ WORKDIR /workspace
 
 COPY . .
 RUN go get
-RUN go build -o /workspace/sniproxy
+RUN go build -ldflags "-s -w -X main.version=v1.0.7-warp" -o /workspace/sniproxy
 
 
-FROM golang:1.24-alpine AS release
+FROM alpine:3.18 AS release
 
 WORKDIR /sniproxy
 
